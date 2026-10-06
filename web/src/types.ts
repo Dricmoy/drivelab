@@ -1,0 +1,15 @@
+export type Point = [number, number];
+export type Vehicle = { id: string; x: number; y: number; yaw: number; speed: number; length: number; width: number; valid?: boolean; kind?: string };
+export type PlannerConfig = { target_speed: number; safety_margin: number; horizon: number; prediction?: 'constant_velocity' | 'learned'; scoring?: 'auto' | 'numpy' | 'rust' };
+export type Scenario = { id: string; name: string; description: string; source: string; dt: number; duration: number; bounds: [number, number, number, number]; road_polygons: Point[][]; lanes: { id: string; points: Point[] }[]; route: Point[]; ego: Vehicle; actors: Vehicle[]; tags: string[] };
+export type ScenarioSummary = Pick<Scenario, 'id' | 'name' | 'description' | 'source' | 'duration' | 'tags'> & Partial<Pick<Scenario, 'route' | 'road_polygons' | 'bounds'>>;
+export type Candidate = { id: string; points: Point[]; cost: number; feasible: boolean; collision_cost: number; offroad_cost: number; progress_cost: number; comfort_cost: number; acceleration: number; offset: number };
+export type Metrics = { collision: boolean; offroad: boolean; progress: number; distance: number; mean_speed: number; max_jerk: number; min_clearance: number; duration: number };
+export type ActorForecast = { actor_id: string; points: Point[]; times: number[] };
+export type Frame = { time: number; ego: Vehicle; actors: Vehicle[]; actor_forecasts?: ActorForecast[]; candidates: Candidate[]; selected_candidate: string | null; explanation: string; metrics: { collision: boolean; offroad: boolean; clearance: number; acceleration: number; jerk: number; progress: number } };
+export type Failure = { time: number; frame_index: number; type: string; message: string };
+export type RunReport = { id: string; scenario_id: string; planner: 'baseline' | 'lattice'; config: PlannerConfig; source: string; engine: string; scoring_backend?: 'numpy' | 'rust'; timing?: { total_seconds: number; planning_seconds: number; decisions: number; mean_decision_ms: number }; metrics: Metrics; frames: Frame[]; failures: Failure[]; created_at: string };
+export type RunSummary = Omit<RunReport, 'frames'>;
+export type Evaluation = { id: string; source: string; results: { scenario_id: string; baseline: RunSummary; lattice: RunSummary }[]; summary: { baseline: Record<string, number>; lattice: Record<string, number> } };
+export type Health = { status: string; waymax_available: boolean; native_available?: boolean; dataset_count: number; version?: string };
+export type ForecastStatus = { available: boolean; trained: boolean; source: string; seed?: number; epochs?: number; train_trajectories?: number; validation_trajectories?: number; horizon_seconds?: number; metrics?: { baseline_ade: number; baseline_fde: number; learned_ade: number; learned_fde: number } };

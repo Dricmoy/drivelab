@@ -1,0 +1,57 @@
+/* Motion connects a user's action to its result; numbers and frames stay exact. */
+.field-lab .app-header nav{position:relative;isolation:isolate}
+.navigation-highlight{position:absolute;left:0;pointer-events:none;z-index:-1;border-radius:10px;background:#edf2ff;box-shadow:inset 0 0 0 1px #d5e0ff;opacity:0}
+.field-lab .app-header nav[data-highlight-ready=true] .nav-active{background:transparent;box-shadow:none}
+.field-lab .app-header nav button:hover{background:#e7edff65}
+.field-lab .operation-symbol{transition:background 180ms,color 180ms}
+.field-lab .cost-track span{transition:width 220ms cubic-bezier(.16,1,.3,1)}
+.field-lab .candidate-item{transition:background 180ms,border-color 180ms,box-shadow 180ms,transform 100ms}
+.motion-presence[data-presence=closing]{pointer-events:none}
+.motion-preference{display:flex;align-items:flex-start;gap:12px;padding:18px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.6;color:var(--ink)}
+.motion-preference input{margin:4px 0 0;width:18px;height:18px;flex-shrink:0}
+.motion-preference strong,.motion-preference small{display:block}
+.motion-preference small{font-size:12px;color:var(--muted);margin-top:4px}
+.motion-preference select{min-height:44px;max-width:145px;border:1px solid #c9d1d7;border-radius:9px;background:#f9fafc;color:var(--ink);padding:0 10px;font-size:13px;flex-shrink:0}
+.help-modal .motion-preference{border-top:0;padding:12px 0}
+.help-modal .motion-scope{font-size:12px;line-height:1.6;color:var(--muted);margin-bottom:16px}
+.help-instructions{border-top:1px solid var(--line);padding-top:4px}
+.help-instructions summary{min-height:44px;display:list-item;align-content:center;cursor:pointer;font-weight:600;font-size:14px}
+.help-instructions p{font-size:13px;line-height:1.7;margin-top:12px;color:var(--muted)}
+.help-instructions summary:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.replay-column{min-width:0}
+.candidate-expand{min-height:44px;display:flex;align-items:center;justify-content:space-between;width:100%;padding:8px 4px;color:#234eb7;font-size:12px;font-weight:600}
+.candidate-expand[aria-expanded=true] svg{transform:rotate(180deg)}
+@media(max-width:480px){
+  .motion-preference{flex-direction:column}.motion-preference select{width:100%;max-width:none}
+  .field-lab .app-header nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;min-width:0}
+  .field-lab .app-header nav button{min-width:0;min-height:44px;padding:10px 4px;justify-content:center;font-size:12px}
+  .field-lab .app-header{padding:10px 12px 6px;gap:8px}.field-lab .brand{font-size:19px}
+  .field-lab .sidebar{padding:6px 12px}.field-lab main{padding:14px 12px}
+  .field-lab .operation-status{margin-bottom:14px;padding-bottom:12px;gap:8px}.field-lab .operation-symbol{width:28px;height:28px}
+  .field-lab .operation-title strong{font-size:12px}.field-lab .operation-status p{font-size:11px;line-height:1.45}
+  .field-lab h1{font-size:25px}.field-lab .breadcrumb{margin-bottom:4px}
+  .field-lab .page-heading{margin-bottom:14px;gap:10px}.field-lab .page-heading p{font-size:12px;line-height:1.45;margin-top:6px}
+  .field-lab .heading-actions{margin-top:8px;gap:8px}.field-lab .heading-actions .button{min-height:44px;padding:0 10px;font-size:12px}
+  .field-lab .replay-page>.page-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center}
+  .field-lab .replay-page>.page-heading>div:first-child{display:contents}
+  .field-lab .replay-page>.page-heading .breadcrumb{display:none}
+  .field-lab .replay-page>.page-heading h1{grid-column:1;grid-row:1;font-size:22px}
+  .field-lab .replay-page>.page-heading p{grid-column:1/-1;grid-row:2;margin-top:2px}
+  .field-lab .replay-page>.page-heading .heading-actions{grid-column:2;grid-row:1;margin:0;width:auto;gap:6px}
+  .field-lab .replay-page>.page-heading .button-primary{font-size:11px;padding:0 8px}
+  .field-lab .replay-page>.page-heading .button-secondary{font-size:0;width:36px;padding:0}
+  .field-lab .run-receipt{gap:4px;padding:10px}.field-lab .run-receipt small{font-size:10px}
+  .field-lab .receipt-settings{display:flex;flex-wrap:wrap;align-items:center;gap:3px 8px}
+}
+.field-lab .play-button svg{transition:transform 180ms cubic-bezier(.16,1,.3,1)}
+.field-lab .play-button:active svg{transform:scale(.88)}
+.field-lab .mobile-details-toggle svg,.field-lab .mobile-library-toggle>svg:last-child{transition:transform 240ms cubic-bezier(.16,1,.3,1)}
+.field-lab :is(.mobile-details-toggle,.mobile-library-toggle)[aria-expanded=true]>svg:last-child{transform:rotate(180deg)}
+@supports(interpolate-size:allow-keywords){
+  .planner-explanation{interpolate-size:allow-keywords}
+  .planner-explanation::details-content{block-size:0;overflow:clip;opacity:0;transition:block-size 240ms cubic-bezier(.16,1,.3,1),opacity 160ms,content-visibility 240ms;transition-behavior:allow-discrete}
+  .planner-explanation[open]::details-content{block-size:auto;opacity:1}
+}
+html[data-motion=reduced] .field-lab *,html[data-motion=reduced] .field-lab *::before,html[data-motion=reduced] .field-lab *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+html[data-motion=reduced] .field-lab button:active:not(:disabled){transform:none}
+html[data-motion=reduced] .planner-explanation::details-content{transition:none!important}

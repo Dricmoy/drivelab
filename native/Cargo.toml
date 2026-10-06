@@ -1,0 +1,13 @@
+[package]
+name = "drivelab-scoring"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+
+[lib]
+name = "drivelab_scoring"
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+lto = true
+codegen-units = 1

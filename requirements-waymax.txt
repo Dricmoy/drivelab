@@ -1,0 +1,23 @@
+# Python 3.12 / macOS arm64 CPU; use public PyPI, never an inherited index.
+# Install after the parent dependency task finishes:
+# .venv/bin/python -m pip --isolated install --index-url https://pypi.org/simple -r requirements-waymax.txt
+# Pins avoid newer Flax/Optax/Orbax silently forcing a different JAX generation.
+numpy==2.0.2
+scipy==1.14.1
+ml-dtypes==0.5.1
+jax==0.4.38
+jaxlib==0.4.38
+tensorflow==2.18.1
+chex==0.1.88
+flax==0.10.2
+optax==0.2.4
+orbax-checkpoint==0.11.5
+dm-env==1.6
+dm-tree==0.1.9
+immutabledict==4.2.1
+matplotlib==3.9.4
+Pillow==11.1.0
+mediapy==1.2.2
+tqdm==4.67.1
+absl-py==2.1.0
+waymo-waymax @ git+https://github.com/waymo-research/waymax.git@a64dfec9be8576b60d9cecc94f406d9812d4a7d0

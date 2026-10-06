@@ -1,0 +1,45 @@
+/* Technical Noir: warm ink, upright editorial type, a recorded spatial workbench. */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Serif&display=swap');
+
+:root {
+  --color-paper: oklch(17% .008 65);
+  --color-paper-2: oklch(21% .008 65);
+  --color-paper-3: oklch(26% .008 65);
+  --color-ink: oklch(94% .014 85);
+  --color-muted: oklch(76% .01 85);
+  --color-rule: oklch(35% .008 65);
+  --color-control-rule: oklch(57% .008 65);
+  --color-accent: oklch(72% .18 36);
+  --color-accent-ink: oklch(17% .008 65);
+  --color-focus: oklch(83% .09 205);
+  --color-selected: oklch(83% .09 205);
+  --color-selected-surface: oklch(26% .025 205);
+  --color-success: oklch(81% .10 155);
+  --color-success-surface: oklch(24% .025 155);
+  --color-warning: oklch(82% .11 80);
+  --color-alternative: var(--color-warning);
+  --color-inspected: oklch(84% .06 305);
+  --color-warning-surface: oklch(26% .025 80);
+  --color-error: oklch(78% .13 24);
+  --color-error-surface: oklch(25% .025 24);
+  --color-backdrop: oklch(12% .008 65 / .85);
+  --font-display: 'Instrument Serif', 'Noir Serif Fallback', Georgia, serif;
+  --font-body: 'IBM Plex Sans', 'Noir Sans Fallback', sans-serif;
+  --space-xs: .5rem;
+  --space-sm: .75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --radius-control: .35rem;
+  --radius-panel: .7rem;
+  --dur-micro: 120ms;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --z-modal: 400;
+  --blue: var(--color-selected);
+  --ink: var(--color-ink);
+  --muted: var(--color-muted);
+  --line: var(--color-rule);
+  --red: var(--color-error);
+}
+@font-face { font-family: 'Noir Serif Fallback'; src: local('Georgia'); size-adjust: 96%; ascent-override: 100%; descent-override: 28%; line-gap-override: 0%; }
+@font-face { font-family: 'Noir Sans Fallback'; src: local('Arial'); size-adjust: 99%; ascent-override: 102%; descent-override: 28%; line-gap-override: 0%; }

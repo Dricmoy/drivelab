@@ -1,0 +1,51 @@
+name: DriveLab verification
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      JAX_PLATFORMS: cpu
+      TF_CPP_MIN_LOG_LEVEL: "2"
+      TF_NUM_INTRAOP_THREADS: "1"
+      TF_NUM_INTEROP_THREADS: "1"
+      DRIVELAB_REQUIRE_NATIVE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-waymax.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install backend and scientific runtime
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install -r requirements-waymax.txt
+          .venv/bin/python -m pip install -e './backend[test,ml]'
+      - name: Build the viewer
+        run: |
+          npm ci --prefix web
+          npm run build --prefix web
+          cd web
+          npx playwright install --with-deps chromium
+      - name: Build and test the Rust scorer
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup override set stable
+          make native
+      - name: Verify planner, API, and Waymax
+        run: |
+          .venv/bin/python -m pytest backend/tests -q
+          .venv/bin/python scripts/verify_waymax.py
+      - name: Exercise the UI against the API
+        run: npm run test:e2e --prefix web
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-evidence
+          path: web/test-results/

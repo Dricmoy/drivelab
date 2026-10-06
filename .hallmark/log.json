@@ -1,0 +1,33 @@
+[
+  {
+    "date": "2026-10-05",
+    "scope": "app",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA",
+    "design_system": "design.md",
+    "source": "https://santionispirits.com/",
+    "vibe": "Technical Noir editorial spatial research instrument",
+    "nav": "N1b app modes",
+    "footer": "Ft2 recorded provenance",
+    "enrichment": "Real interactive Three.js replay and original etched concept art",
+    "brief": "Redesign DriveLab with tactile controls, honest state/evidence, reachable playback and settings; two independent screenshot critique rounds.",
+    "pre_emit_critique": { "philosophy": 4, "hierarchy": 4, "execution": 4, "specificity": 5, "restraint": 4, "variety": 4 },
+    "verification": "Production build, 23 motion tests and manual in-app browser flows; limitations in design/technical-noir/REPORT.md."
+  },
+  {
+    "date": "2026-10-05",
+    "scope": "app refinement",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA",
+    "design_system": "design.md",
+    "sources": ["https://www.framer.com/community/gallery/", "https://midu.design/", "https://www.awwwards.com/inspiration/enter-car-transition-virtual-car-showroom"],
+    "vibe": "Technical Noir editorial spatial research instrument",
+    "nav": "N1b app modes",
+    "footer": "Ft2 recorded provenance",
+    "enrichment": "Original dimensional vehicle geometry, restrained material lighting, unobstructed replay",
+    "variation": "Preserved locked design system; compact external controls, paired evidence cards, results-first mobile hierarchy",
+    "brief": "Update visual vehicle models and responsive layouts using Framer and Awwwards inspiration; preserve real capabilities and honest evidence.",
+    "pre_emit_critique": { "philosophy": 4, "hierarchy": 4, "execution": 4, "specificity": 5, "restraint": 4, "variety": 4 },
+    "verification": "Build and 28 unit tests pass. Manual browser sweep covers four modes at eight widths, important interactions and two independent screenshot critique rounds. Limits in design/noir-refinement/REPORT.md."
+  }
+]
