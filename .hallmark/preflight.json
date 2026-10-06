@@ -1,18 +1,27 @@
 {
   "date": "2026-10-05",
-  "scope": "Technical Noir refinement",
+  "scope": "Technical Noir coherence",
   "locked_design_system": "design.md",
   "genre": "atmospheric",
   "macrostructure": "Workbench",
   "stack": "React 19, TypeScript, Vite 7, React Three Fiber, Three.js, drei",
   "reuse": "Existing status, navigation, disclosure, inspector, transport, dialogs and motion infrastructure",
-  "typography": { "display": "Instrument Serif", "body": "IBM Plex Sans", "numeric": "tabular figures" },
+  "typography": {
+    "display": "Instrument Serif",
+    "display_scope": "DriveLab wordmark only",
+    "headings": "IBM Plex Sans, shared with the interface",
+    "body": "IBM Plex Sans",
+    "numeric": "tabular figures"
+  },
   "tokens": "web/src/tokens.css: semantic OKLCH colors, type, spacing, focus and motion",
   "motion": "Native WAAPI and interruptible R3F camera transitions; system reduced-motion respected",
   "sound": "Existing interface sound remains opt-in and off at handoff",
-  "visual_asset": "Original dimensional procedural vehicles; no external model or brand asset copied",
+  "visual_asset": "Original dimensional vehicles plus two locally bundled, credited Unsplash editorial photos",
   "constraints": "Recorded footprint and poses unchanged; illustrative appearance labelled; no synthetic safety-certification claims",
   "review": "Two independent screenshot-only critique rounds",
-  "evidence": "design/noir-refinement/REPORT.md",
-  "certification": "Bounded implementation review, not exhaustive Hallmark or WCAG certification"
+  "evidence": "design/coherence/REPORT.md",
+  "certification": "Bounded implementation review, not exhaustive Hallmark or WCAG certification",
+  "reference": "Terminal Industries, verified Awwwards SOTD 2025-09-03",
+  "palette": "Warm charcoal/ivory; apricot selected, ivory inspected, sage success, amber waiting, coral failure",
+  "verification": "Build; 23 motion + 5 geometry + 6 design-system tests; bounded manual browser matrix"
 }

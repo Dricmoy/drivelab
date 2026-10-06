@@ -69,6 +69,7 @@ def synthetic_scenarios():
     angles = np.linspace(0, 1.4, 81)
     curve = np.stack((70 * np.sin(angles), 70 * (1 - np.cos(angles))), -1).tolist()
     scenarios = [
+        busy_boulevard(),
         make_scenario("parked-car", "Parked car", "A stationary vehicle blocks the route. Brake or use the free road corridor.",
                       [vehicle("parked", 40, 0)], tags=["obstacle", "avoidance"]),
         make_scenario("slow-lead", "Slow lead vehicle", "Catch a vehicle travelling at 3 m/s. Match its speed or pass safely.",
@@ -111,3 +112,38 @@ def synthetic_scenarios():
     turning.public["bounds"] = [float(points[:, 0].min() - 5), float(points[:, 1].min() - 8),
                                float(points[:, 0].max() + 5), float(points[:, 1].max() + 8)]
     return {s.public["id"]: s for s in scenarios}
+
+
+def busy_boulevard():
+    """Dense, non-reactive lane-following fixture; no cosmetic duplicate actors."""
+    actors = []
+    sizes = [(4.0, 1.75), (4.6, 1.85), (4.9, 2.02), (5.8, 2.1)]
+    for lane, (y, yaw, speed, start) in enumerate([
+        (0., 0., 3.2, 20.), (-3.6, 0., 3.7, 6.),
+        (3.6, math.pi, 3.5, 10.), (7.2, math.pi, 4., 12.),
+    ]):
+        x = start
+        for index in range(7):
+            length, width = sizes[(lane + index) % len(sizes)]
+            actor_speed = speed + (((index * 3 + lane) % 5) - 2) * .12
+            actors.append(vehicle(f"lane-{lane + 1}-{index + 1:02d}", x, y,
+                                  actor_speed, yaw, length, width))
+            x += [13., 17., 14., 16., 15., 12., 16.][(index + lane) % 7]
+    for side, y in enumerate([-7.2, 10.8]):
+        for index, x in enumerate([15., 45., 75., 105.]):
+            length, width = sizes[(side + index) % len(sizes)]
+            actors.append(vehicle(f"parked-{side + 1}-{index + 1:02d}", x, y,
+                                  yaw=side * math.pi, length=length, width=width))
+    scenario = make_scenario("busy-boulevard", "Busy boulevard",
+        "Four travel lanes, oncoming traffic and curbside parking. 36 surrounding vehicles follow prescribed motion; inspect how the planner handles a crowded road.",
+        actors, half_width=12.6, tags=["urban-fleet", "dense-traffic", "scripted"])
+    scenario.public.update(bounds=[-40., -35., 150., 38.],
+        road_polygons=[[[-35., -9.4], [145., -9.4], [145., 13.], [-35., 13.]]],
+        lanes=[dict(id=f"boundary-{i}", points=[[-35., y], [145., y]])
+               for i, y in enumerate([-5.4, -1.8, 1.8, 5.4, 9.])],
+        environment=dict(kind="boulevard", x_min=-35., x_max=145., curb_y=[-9.4, 13.],
+            buildings=[dict(x=x, y=y, length=18., width=13., height=4. + (i % 3) * 3.)
+                       for y in [-23., 27.] for i, x in enumerate([0., 30., 60., 90., 120.])]))
+    scenario.notes = ["Synthetic urban fixture: 28 lane-following and 8 parked actors; not reactive traffic.",
+                      "Street context and vehicle appearance are illustrative, not measured sensor data."]
+    return scenario

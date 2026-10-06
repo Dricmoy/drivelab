@@ -1,0 +1,94 @@
+/* Hallmark · macrostructure: Workbench · genre: atmospheric · design-system: design.md · designed-as-app
+ * Pre-emit critique: P4 H4 E4 S5 R4 V3. Scoped type/fleet refinement, not a full redesign.
+ * Technical Noir completeness · warm ink/ivory/apricot.
+ * Terminal Industries: industrial material restraint, not copied brand assets.
+ * Keep legacy layout infrastructure; explicitly reconcile its remaining colors.
+ */
+@import './tokens.css';
+:root { background: var(--color-paper); color: var(--color-ink); }
+.field-lab { --color-hover: var(--color-paper-3); }
+.field-lab a { color: var(--color-selected); }
+.field-lab .brand { color: var(--color-ink); }
+.field-lab :is(h1,h2,h3) { font-family: var(--font-heading); font-style: normal; }
+.field-lab h1 { font-family: var(--font-heading); font-size: var(--text-page); font-weight: 700; line-height: 1.15; letter-spacing: -.035em; }
+.field-lab :is(.evaluation-intro h2,.empty-state h2,.dataset-form-panel h2,.model-layout h2,.dataset-guide h2,.modal h2) { font-family: var(--font-heading); font-size: var(--text-section); font-weight: 600; line-height: 1.25; letter-spacing: -.02em; }
+.field-lab .decision-summary strong { font-family: var(--font-heading); font-size: var(--text-decision); font-weight: 600; line-height: 1.25; letter-spacing: -.025em; }
+.field-lab :is(button,input,select,textarea) { font-family: var(--font-body); }
+.field-lab button { font-weight: 500; }
+.field-lab :is(.scenario-item strong,.sidebar-heading h2,.inspector-heading h2,.inspector h3) { font-weight: 600; }
+.field-lab :is(.run-receipt,.transport,.metric,.inspector,.comparison-table,.model-error-table) { font-variant-numeric: tabular-nums; }
+.field-lab .scene-fleet-note { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-md); padding: var(--space-sm) var(--space-md); border-bottom: 1px solid var(--color-rule); color: var(--color-muted); font-size: 12px; line-height: 1.5; }
+.field-lab .scene-fleet-note strong { color: var(--color-ink); font-weight: 600; }
+.field-lab :is(.scenario-arrow,.dataset-guide>svg,.modal-heading>div,.help-modal strong,.candidate-item>svg) { color: var(--color-ink); }
+.field-lab :is(.next-run-label,.comparison-table td strong,.model-error-table strong) { color: var(--color-ink); }
+.field-lab :is(.side-link,.dataset-guide,.empty-library,.history-list p) { color: var(--color-muted); }
+.field-lab :is(.engine-status,.import-success,.evaluation-intro,.view-switch,.scene-toolbar,.inspector-heading,.mobile-details-toggle) { border-color: var(--color-rule); }
+.field-lab .engine-status i { background: var(--color-warning); }
+.field-lab .engine-status .online,.field-lab .scenario-item small i.source-real { background: var(--color-success); }
+.field-lab .inspector-heading { background: transparent; }
+.field-lab .evaluation-intro { background: transparent; border-radius: 0; }
+.field-lab :is(.run-status,.pill) { background: transparent; }
+.field-lab .run-status { color: var(--color-success); }
+.field-lab :is(.status-warn,.pill-warn) { color: var(--color-error); background: transparent; }
+.field-lab .candidate-item>svg { color: var(--color-selected); }
+.field-lab .candidate-item.candidate-active { background: var(--color-selected-surface); border-color: var(--color-selected); }
+.field-lab .compare-button { box-shadow: none; }
+.field-lab .scene-hud { background: var(--color-paper-2); border-color: var(--color-rule); box-shadow: none; color: var(--color-muted); }
+.field-lab .hud-separator { background: var(--color-rule); }
+.field-lab .map-dot { background: var(--color-selected); }
+.field-lab .map-scale span { border-color: var(--color-muted); }
+.field-lab .car:focus-visible { filter: none; outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.field-lab .failure-marker { background: var(--color-error); border-color: var(--color-paper); }
+.field-lab :is(.help-modal strong,.motion-preference strong) { color: var(--color-ink); }
+.field-lab .scene-canvas { background: var(--color-paper); }
+.field-lab .scene-path-key .path-key-alternative::before { background: transparent; border-top: 2px dashed currentColor; }
+.field-lab .scene-path-key .path-key-inspected::before { height: 4px; background: transparent; border-block: 1px solid currentColor; }
+.field-lab :is(button,a,input,select,textarea,summary,[tabindex]):focus-visible { box-shadow: 0 0 0 2px var(--color-paper); outline-color: var(--color-focus); }
+.field-lab .button-primary:focus-visible { box-shadow: 0 0 0 2px var(--color-paper); }
+.field-lab .model-error-table .learned-score { color: var(--color-ink); font-size: 24px; }
+.field-lab .model-error-table>div:first-child strong { color: var(--color-muted); font-size: inherit; }
+.field-lab .dataset-count { gap: 8px; }
+.field-lab .model-header-actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-sm); flex-shrink: 0; }
+.field-lab .comparison-scope { padding-block: var(--space-md); }
+.field-lab .comparison-scope h2 { font: 500 16px/1.5 var(--font-body); color: var(--color-ink); }
+.field-lab .comparison-scope p,.field-lab .rate-counts { color: var(--color-muted); font-size: 13px; line-height: 1.6; }
+.field-lab .comparison-scope p { margin-top: 4px; }
+.field-lab .rate-counts { display: block; margin-top: var(--space-sm); }
+.field-lab .model-training-panel { align-self: start; }
+.field-lab .replay-workbench { grid-template-areas: 'replay inspector' 'outcomes inspector'; align-items: start; }
+.field-lab .replay-column { grid-area: replay; }
+.field-lab .inspector { grid-area: inspector; }
+.field-lab .run-outcomes { grid-area: outcomes; margin-top: 0; }
+.field-lab .dataset-preparation { margin-top: var(--space-md); padding-block: var(--space-sm); border-block: 1px solid var(--color-rule); }
+.field-lab .dataset-preparation strong { color: var(--color-ink); }
+.field-lab .dataset-preparation a { display: inline-block; text-decoration: underline; text-underline-offset: 3px; }
+.field-lab .field-help { display: block; min-height: 1lh; color: var(--color-muted); font-size: 12px; line-height: 1.6; margin-bottom: var(--space-md); }
+.field-lab .dataset-form-panel form>.button+.field-help { margin-top: var(--space-xs); margin-bottom: 0; }
+.field-lab .dataset-guide>.editorial-figure { margin-top: var(--space-lg); }
+.field-lab .editorial-figure { margin: 0 0 var(--space-lg); }
+.field-lab .model-training-panel .editorial-figure { margin-block: var(--space-lg); }
+.field-lab .editorial-image { overflow: hidden; aspect-ratio: 16/9; background: var(--color-paper); border-radius: var(--radius-control); }
+.field-lab .editorial-image img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(.65) contrast(1.05); }
+.field-lab .editorial-geometry img { object-position: 50% 61%; }
+.field-lab .editorial-motion img { object-position: 50% 70%; }
+.field-lab .editorial-figure figcaption { display: grid; gap: 4px; padding-top: var(--space-sm); color: var(--color-muted); font-size: 12px; line-height: 1.5; }
+.field-lab .editorial-figure figcaption strong { color: var(--color-ink); font-size: 14px; font-weight: 500; }
+.field-lab .editorial-figure figcaption a { color: var(--color-muted); text-decoration: underline; text-underline-offset: 3px; width: fit-content; }
+.field-lab .editorial-unavailable { display: grid; align-content: center; height: 100%; padding: var(--space-lg); color: var(--color-muted); font-size: 14px; line-height: 1.5; }
+@media (hover:hover) {
+  .field-lab :is(.side-link,.compare-button,.candidate-expand,.candidate-filters button,.actor-picker button,.transport>button:not(.play-button)):hover { background: var(--color-hover); color: var(--color-ink); }
+  .field-lab .candidate-item.candidate-active:hover { background: var(--color-selected-surface); color: var(--color-ink); }
+  .field-lab .editorial-figure a:hover { color: var(--color-ink); }
+}
+@media (max-width:40rem) {
+  .field-lab .run-receipt { padding: 8px 12px; gap: 4px 12px; font-size: 12px; }
+  .field-lab .model-header-actions { width: 100%; justify-content: space-between; }
+  .field-lab .model-header-actions .button { min-width: 148px; }
+  .field-lab .editorial-image { aspect-ratio: 16/10; }
+  .field-lab .editorial-figure { margin-top: var(--space-lg); }
+  .field-lab .model-error-table .learned-score { font-size: 20px; }
+}
+@media (max-width:75rem) {
+  .field-lab .replay-workbench { grid-template-areas: 'replay' 'inspector' 'outcomes'; }
+  .field-lab .mobile-decision { border-bottom: 1px solid var(--color-rule); }
+}

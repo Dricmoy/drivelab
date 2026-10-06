@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import type { Vehicle } from './types';
 import { scenePalette as paint } from './scenePalette';
-import { cabinProfile, createVehicleShell, shellProfile, vehicleDimensions } from './vehicleGeometry';
+import { cabinProfile, createVehicleShell, shellProfile, vehicleDimensions, vehiclePaint } from './vehicleGeometry';
 
 /** Original dimensional models: no downloaded mesh, no invented vehicle motion. */
 export default function VehicleModel({ vehicle, ego, onReady }: {
@@ -15,7 +15,8 @@ export default function VehicleModel({ vehicle, ego, onReady }: {
   useEffect(() => () => { geometry.body.dispose(); geometry.glass.dispose(); }, [geometry]);
   useEffect(() => { onReady('drivelab-' + dims.style + '-v2'); }, [dims.style, onReady]);
   const { length: l, width: w, height: h, wheelRadius: r, axle } = dims;
-  const bodyColor = ego ? paint.selected : paint.traffic;
+  const bodyColor = vehiclePaint(vehicle.id, ego);
+  const wheelRotation = -(vehicle.x * Math.cos(vehicle.yaw) + vehicle.y * Math.sin(vehicle.yaw)) / r;
   return <group>
     <group scale={[l, h, w]}>
       <mesh geometry={geometry.body} castShadow receiveShadow>
@@ -25,7 +26,7 @@ export default function VehicleModel({ vehicle, ego, onReady }: {
         <meshPhysicalMaterial color={paint.glass} metalness={.30} roughness={.15} clearcoat={1} />
       </mesh>
       <mesh position={[-.035, .943, 0]} castShadow>
-        <boxGeometry args={[dims.style === 'van' ? .48 : .25, .025, .72]} />
+        <boxGeometry args={[['van','suv','hatchback'].includes(dims.style) ? .42 : .25, .025, .72]} />
         <meshStandardMaterial color={bodyColor} metalness={.45} roughness={.3} />
       </mesh>
       {[-1, 1].map(side => <group key={side}>
@@ -50,12 +51,15 @@ export default function VehicleModel({ vehicle, ego, onReady }: {
       <mesh position={[.476, .28, 0]}>
         <boxGeometry args={[.012, .07, .43]} /><meshStandardMaterial color={paint.trim} roughness={.7} />
       </mesh>
+      {[-1, 1].map(end => <mesh key={'plate-' + end} position={[end * .488, .32, 0]}>
+        <boxGeometry args={[.006, .045, .15]} /><meshStandardMaterial color={paint.paper} roughness={.6} />
+      </mesh>)}
     </group>
     {[-axle, axle].flatMap(x => [-1, 1].map(side => <group key={x + ':' + side} position={[x, r, side * w * .43]}>
       <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
         <cylinderGeometry args={[r, r, w * .13, 20]} /><meshStandardMaterial color={paint.tire} roughness={.94} />
       </mesh>
-      <group position={[0, 0, side * w * .065]}>
+      <group position={[0, 0, side * w * .065]} rotation={[0, 0, wheelRotation]}>
         <mesh rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[r * .70, r * .70, w * .006, 20]} /><meshStandardMaterial color={paint.trim} roughness={.55} />
         </mesh>

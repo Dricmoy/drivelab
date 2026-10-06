@@ -1,7 +1,8 @@
 export type Point = [number, number];
 export type Vehicle = { id: string; x: number; y: number; yaw: number; speed: number; length: number; width: number; valid?: boolean; kind?: string };
 export type PlannerConfig = { target_speed: number; safety_margin: number; horizon: number; prediction?: 'constant_velocity' | 'learned'; scoring?: 'auto' | 'numpy' | 'rust' };
-export type Scenario = { id: string; name: string; description: string; source: string; dt: number; duration: number; bounds: [number, number, number, number]; road_polygons: Point[][]; lanes: { id: string; points: Point[] }[]; route: Point[]; ego: Vehicle; actors: Vehicle[]; tags: string[] };
+export type StreetContext = { kind: 'boulevard'; x_min: number; x_max: number; curb_y: [number, number]; buildings: { x: number; y: number; length: number; width: number; height: number }[] };
+export type Scenario = { id: string; name: string; description: string; source: string; dt: number; duration: number; bounds: [number, number, number, number]; road_polygons: Point[][]; lanes: { id: string; points: Point[] }[]; route: Point[]; ego: Vehicle; actors: Vehicle[]; tags: string[]; environment?: StreetContext };
 export type ScenarioSummary = Pick<Scenario, 'id' | 'name' | 'description' | 'source' | 'duration' | 'tags'> & Partial<Pick<Scenario, 'route' | 'road_polygons' | 'bounds'>>;
 export type Candidate = { id: string; points: Point[]; cost: number; feasible: boolean; collision_cost: number; offroad_cost: number; progress_cost: number; comfort_cost: number; acceleration: number; offset: number };
 export type Metrics = { collision: boolean; offroad: boolean; progress: number; distance: number; mean_speed: number; max_jerk: number; min_clearance: number; duration: number };

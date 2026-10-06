@@ -1,6 +1,7 @@
 import { ExtrudeGeometry, Shape } from 'three';
+export { vehiclePaint } from './scenePalette.ts';
 
-export type VehicleStyle = 'sedan' | 'touring' | 'van';
+export type VehicleStyle = 'hatchback' | 'sedan' | 'touring' | 'suv' | 'van';
 
 // +X is forward. Profiles stay inside the recorded length/width after beveling.
 // Heights, silhouettes and detailing are presentation choices, not sensor data.
@@ -9,15 +10,15 @@ export const shellProfile: [number, number][] = [
   [.28, .59], [.43, .49], [.48, .36], [.46, .23],
 ];
 export function cabinProfile(style: VehicleStyle): [number, number][] {
-  return style === 'van'
-    ? [[-.39, .56], [-.36, .95], [.15, .95], [.32, .56]]
+  return style === 'van' || style === 'suv' || style === 'hatchback'
+    ? [[-.39, .56], [-.34, .95], [.12, .95], [.30, .56]]
     : [[-.30, .57], [-.17, .91], [.10, .94], [.29, .57]];
 }
 export function vehicleDimensions(length: number, width: number, ego: boolean) {
   if (!Number.isFinite(length) || !Number.isFinite(width) || length <= 0 || width <= 0)
     throw new Error('Vehicle footprint must have finite positive dimensions');
-  const style: VehicleStyle = length > 5.2 ? 'van' : ego ? 'touring' : 'sedan';
-  return { length, width, style, height: style === 'van' ? 2.05 : 1.48,
+  const style: VehicleStyle = ego ? 'touring' : length > 5.2 ? 'van' : length >= 4.7 && width >= 1.98 ? 'suv' : length < 4.2 ? 'hatchback' : 'sedan';
+  return { length, width, style, height: style === 'van' ? 2.05 : style === 'suv' ? 1.78 : 1.48,
     wheelRadius: Math.min(width * .18, length * .075), axle: length * .30 };
 }
 export function createVehicleShell(profile: [number, number][], depth: number) {

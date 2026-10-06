@@ -1,6 +1,17 @@
 [
   {
     "date": "2026-10-05",
+    "scope": "typography and fleet refinement",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA",
+    "design_system": "design.md",
+    "variation": "Plex functional type, serif wordmark only; 36 actual traffic actors, dimension-based models, quieter forecasts and urban context",
+    "brief": "Make fonts coherent and traffic a believable fleet rather than a two-car fixture",
+    "pre_emit_critique": { "philosophy": 4, "hierarchy": 4, "execution": 4, "specificity": 5, "restraint": 4, "variety": 3 },
+    "verification": "Build, unit/backend checks, six-width four-mode DOM sweep and scoped browser interaction checks. Self-reviewed screenshots, not independent certification. See design/fleet/REPORT.md."
+  },
+  {
+    "date": "2026-10-05",
     "scope": "app",
     "macrostructure": "Workbench",
     "theme": "studied-DNA",
@@ -11,7 +22,14 @@
     "footer": "Ft2 recorded provenance",
     "enrichment": "Real interactive Three.js replay and original etched concept art",
     "brief": "Redesign DriveLab with tactile controls, honest state/evidence, reachable playback and settings; two independent screenshot critique rounds.",
-    "pre_emit_critique": { "philosophy": 4, "hierarchy": 4, "execution": 4, "specificity": 5, "restraint": 4, "variety": 4 },
+    "pre_emit_critique": {
+      "philosophy": 4,
+      "hierarchy": 4,
+      "execution": 4,
+      "specificity": 5,
+      "restraint": 4,
+      "variety": 4
+    },
     "verification": "Production build, 23 motion tests and manual in-app browser flows; limitations in design/technical-noir/REPORT.md."
   },
   {
@@ -20,14 +38,51 @@
     "macrostructure": "Workbench",
     "theme": "studied-DNA",
     "design_system": "design.md",
-    "sources": ["https://www.framer.com/community/gallery/", "https://midu.design/", "https://www.awwwards.com/inspiration/enter-car-transition-virtual-car-showroom"],
+    "sources": [
+      "https://www.framer.com/community/gallery/",
+      "https://midu.design/",
+      "https://www.awwwards.com/inspiration/enter-car-transition-virtual-car-showroom"
+    ],
     "vibe": "Technical Noir editorial spatial research instrument",
     "nav": "N1b app modes",
     "footer": "Ft2 recorded provenance",
     "enrichment": "Original dimensional vehicle geometry, restrained material lighting, unobstructed replay",
     "variation": "Preserved locked design system; compact external controls, paired evidence cards, results-first mobile hierarchy",
     "brief": "Update visual vehicle models and responsive layouts using Framer and Awwwards inspiration; preserve real capabilities and honest evidence.",
-    "pre_emit_critique": { "philosophy": 4, "hierarchy": 4, "execution": 4, "specificity": 5, "restraint": 4, "variety": 4 },
+    "pre_emit_critique": {
+      "philosophy": 4,
+      "hierarchy": 4,
+      "execution": 4,
+      "specificity": 5,
+      "restraint": 4,
+      "variety": 4
+    },
     "verification": "Build and 28 unit tests pass. Manual browser sweep covers four modes at eight widths, important interactions and two independent screenshot critique rounds. Limits in design/noir-refinement/REPORT.md."
+  },
+  {
+    "date": "2026-10-05",
+    "scope": "app coherence",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA",
+    "design_system": "design.md",
+    "sources": [
+      "https://www.awwwards.com/sites/terminal-industries",
+      "https://developer.apple.com/design/human-interface-guidelines/color",
+      "https://waymo.com/blog/2019/08/driven-by-waymo-designed-with-trust/",
+      "https://www.tesla.com/model3"
+    ],
+    "vibe": "Technical Noir warm industrial research instrument",
+    "nav": "N1b app modes",
+    "footer": "Ft2 recorded provenance",
+    "variation": "Preserved user-selected system; warm semantic palette across renderers, scene-first phone replay, sample-scoped metrics, editorial road photography",
+    "pre_emit_critique": {
+      "philosophy": 4,
+      "hierarchy": 4,
+      "execution": 4,
+      "specificity": 5,
+      "restraint": 4,
+      "variety": 3
+    },
+    "verification": "34 unit tests and build pass. Two independent screenshot critiques and manual browser checks. Not exhaustive Hallmark/WCAG certification; limits in design/coherence/REPORT.md."
   }
 ]

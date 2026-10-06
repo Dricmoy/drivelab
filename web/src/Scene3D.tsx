@@ -6,7 +6,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { DoubleSide, Shape, ShapeGeometry, Vector2, Vector3 } from 'three';
 import { Crosshair, Maximize2, Minus, Plus } from 'lucide-react';
 import type { SceneProps } from './Scene';
-import type { Point, Vehicle } from './types';
+import type { Point, StreetContext, Vehicle } from './types';
 import { world } from './sceneGeometry';
 import VehicleModel from './VehicleModel';
 import { appendCameraMotionSample, cameraFrameIsSeek, cameraInterruptionAction, createCameraTransition, finiteCameraPose, sampleCameraTransition, translateCameraPose, zoomCameraPose } from './cameraMotion';
@@ -30,6 +30,38 @@ function Road({ polygon, origin }: { polygon: Point[]; origin: Point }) {
   }, [polygon, origin]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   return <mesh geometry={geometry} position={[0, .01, 0]} receiveShadow><meshStandardMaterial color={paint.road} roughness={.92} side={DoubleSide} /></mesh>;
+}
+
+function BoulevardContext({ context, origin }: { context: StreetContext; origin: Point }) {
+  const midpoint = (context.x_min + context.x_max) / 2;
+  const length = context.x_max - context.x_min;
+  return <group>
+    {context.curb_y.map((y, side) => <group key={side}>
+      <mesh position={world([midpoint, y + (side ? 1.8 : -1.8)], origin, .12)} receiveShadow>
+        <boxGeometry args={[length, .22, 3.6]} /><meshStandardMaterial color={paint.sidewalk} roughness={.95} />
+      </mesh>
+      <Path points={[[context.x_min, y], [context.x_max, y]]} origin={origin} color={paint.rim} height={.24} opacity={.6} />
+    </group>)}
+    <Path points={[[context.x_min, 1.66], [context.x_max, 1.66]]} origin={origin} color={paint.alternative} width={1.5} opacity={.7} />
+    <Path points={[[context.x_min, 1.94], [context.x_max, 1.94]]} origin={origin} color={paint.alternative} width={1.5} opacity={.7} />
+    {context.buildings.map((building, index) => <group key={index} position={world([building.x, building.y], origin, 0)}>
+      <mesh position={[0, building.height / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[building.length, building.height, building.width]} />
+        <meshStandardMaterial color={paint.building} roughness={.9} />
+      </mesh>
+      <mesh position={[0, building.height + .12, 0]} castShadow>
+        <boxGeometry args={[building.length + .3, .24, building.width + .3]} />
+        <meshStandardMaterial color={paint.rooftop} roughness={.9} />
+      </mesh>
+      {Array.from({length:Math.floor(building.height / 3)}, (_, floor) => [-6, -2, 2, 6].map(x => <mesh key={floor + ':' + x} position={[x, 2 + floor * 3, (building.y < 0 ? -1 : 1) * (building.width / 2 + .01)]}>
+        <boxGeometry args={[1.6, 1.5, .04]} /><meshStandardMaterial color={paint.window} metalness={.3} roughness={.5} />
+      </mesh>))}
+    </group>)}
+    {context.curb_y.flatMap((y, side) => [0,30,60,90,120].map(x => <group key={side + ':' + x} position={world([x, y + (side ? 1.2 : -1.2)], origin, 0)}>
+      <mesh position={[0, 2.4, 0]} castShadow><cylinderGeometry args={[.06,.09,4.8,6]} /><meshStandardMaterial color={paint.trim} roughness={.7} /></mesh>
+      <mesh position={[0, 4.8, side ? .45 : -.45]}><boxGeometry args={[.45,.14,1.1]} /><meshStandardMaterial color={paint.rim} metalness={.4} roughness={.4} /></mesh>
+    </group>))}
+  </group>;
 }
 
 function Path({ points, origin, color, width = 1, dashed = false, opacity = 1, height = .09 }: {
@@ -58,7 +90,7 @@ function VehicleMesh({ vehicle, ego = false, selected, origin, onActor, onReady,
   const primitive = <mesh position={[0, .6, 0]} castShadow><boxGeometry args={[vehicle.length, 1.2, vehicle.width]} /><meshStandardMaterial color={color} /></mesh>;
   const footprint: Point[] = [[-vehicle.length / 2 - .25, -vehicle.width / 2 - .25], [vehicle.length / 2 + .25, -vehicle.width / 2 - .25], [vehicle.length / 2 + .25, vehicle.width / 2 + .25], [-vehicle.length / 2 - .25, vehicle.width / 2 + .25], [-vehicle.length / 2 - .25, -vehicle.width / 2 - .25]];
   return <group position={world([vehicle.x, vehicle.y], origin, .03)} rotation={[0, vehicle.yaw, 0]} onClick={e => { e.stopPropagation(); onActor(vehicle.id); }}>
-    {vehicle.kind === 'pedestrian' ? <mesh position={[0, .85, 0]} castShadow><capsuleGeometry args={[Math.max(.15, vehicle.width / 2), 1, 4, 8]} /><meshStandardMaterial color="#b48756" /></mesh>
+    {vehicle.kind === 'pedestrian' ? <mesh position={[0, .85, 0]} castShadow><capsuleGeometry args={[Math.max(.15, vehicle.width / 2), 1, 4, 8]} /><meshStandardMaterial color={paint.alternative} /></mesh>
       : vehicle.kind === 'cyclist' ? primitive : <AssetBoundary fallback={primitive} onFailure={onFailure}><VehicleModel vehicle={vehicle} ego={ego} onReady={onReady} /></AssetBoundary>}
     {(ego || selected) && <Path points={footprint} origin={[0, 0]} color={selected ? paint.inspected : color} width={selected ? 3 : 2.5} />}
   </group>;
@@ -132,13 +164,14 @@ function CameraRig({ ego, actors, frameTime, playbackActive, origin, scenario, m
       .filter(a => a.forward > 0 && a.forward < 60 && a.lateral < 8).map(a => a.forward);
     const gap = forwardGaps.length ? Math.min(...forwardGaps) : 0;
     const followDistance = Math.max(narrow ? 28 : 30, gap * (narrow ? 1.3 : .95));
-    const distance = (follow ? followDistance : span * .85) / zoom;
+    const urbanOverview = !!scenario.environment && !follow;
+    const distance = (follow ? followDistance : span * (urbanOverview ? narrow ? .5 : .65 : .85)) / zoom;
     const lookAhead = Math.max(narrow ? 8 : 10, Math.min(18, gap / 2));
-    const center: Point = follow ? [ego.x + Math.cos(ego.yaw) * lookAhead, ego.y + Math.sin(ego.yaw) * lookAhead] : [(x0 + x1) / 2, (y0 + y1) / 2];
+    const center: Point = follow ? [ego.x + Math.cos(ego.yaw) * lookAhead, ego.y + Math.sin(ego.yaw) * lookAhead] : urbanOverview && narrow ? [scenario.ego.x + 35, 1.8] : [(x0 + x1) / 2, (y0 + y1) / 2];
     const target = new Vector3(...world(center, origin, 0));
     const offset = mode === 'top' ? new Vector3(0, distance * 1.25, .01) : mode === 'chase'
       ? new Vector3(-Math.cos(ego.yaw) * distance * .65, distance * .4, Math.sin(ego.yaw) * distance * .65)
-      : new Vector3(-distance * .48, distance * .92, distance * .75);
+      : new Vector3(-distance * (urbanOverview ? .20 : .48), distance * .92, distance * .75);
     offset.setLength(Math.max(8, Math.min(2500, offset.length())));
     return { position: target.clone().add(offset).toArray() as CameraVector, target: target.toArray() as CameraVector };
   }, [scenario, actors, size.width, size.height, follow, ego.x, ego.y, ego.yaw, origin, mode, zoom]);
@@ -233,7 +266,7 @@ function CameraRig({ ego, actors, frameTime, playbackActive, origin, scenario, m
 export default function Scene3D({ scenario, frame, playbackActive = false, showCandidates, showRoute, showForecasts, inspectedCandidate, selectedActor, onActor, busy, busyLabel, viewControls, onFallback }: SceneProps & { viewControls: ReactNode; onFallback: () => void }) {
   const reducedMotion = useReducedMotion();
   const [mode, setMode] = useState<CameraMode>('angled');
-  const [follow, setFollow] = useState(true);
+  const [follow, setFollow] = useState(!scenario.tags.includes('urban-fleet'));
   const [zoom, setZoom] = useState(1);
   const [reset, setReset] = useState(0);
   const [ready, setReady] = useState(false);
@@ -251,33 +284,35 @@ export default function Scene3D({ scenario, frame, playbackActive = false, showC
   const inspected = candidates.find(c => c.id === inspectedCandidate);
   const span = Math.max(scenario.bounds[2] - scenario.bounds[0], scenario.bounds[3] - scenario.bounds[1], 200);
   const center = world([(scenario.bounds[0] + scenario.bounds[2]) / 2, (scenario.bounds[1] + scenario.bounds[3]) / 2], origin, -.01);
-  return <div className="scene scene-3d" data-testid="scene-3d" data-renderer={ready ? 'webgl' : 'loading'} data-models={assets.join(',')} data-camera={mode} data-camera-motion-kind="presentation" data-camera-motion-label="Camera presentation only; recorded vehicle poses remain exact">
+  return <div className="scene scene-3d" data-testid="scene-3d" data-renderer={ready ? 'webgl' : 'loading'} data-models={assets.join(',')} data-actor-count={actors.length} data-camera={mode} data-camera-motion-kind="presentation" data-camera-motion-label="Camera presentation only; recorded vehicle poses remain exact">
     <div className="scene-control-bar">
       {viewControls}
       <div className="camera-presets" role="group" aria-label="3D camera">{(['angled', 'top', 'chase'] as const).map(m => <button key={m} aria-pressed={mode === m} onClick={() => { setMode(m); if (m === 'chase') setFollow(true); setReset(n => n + 1); }}>{m === 'angled' ? 'Angled' : m === 'top' ? 'Top-down' : 'Chase'}</button>)}</div>
       <select className="camera-select" aria-label="Camera view" value={mode} onChange={e => { const next = e.target.value as CameraMode; setMode(next); if (next === 'chase') setFollow(true); setReset(n => n + 1); }}><option value="angled">Angled</option><option value="top">Top-down</option><option value="chase">Chase</option></select>
       <div className="actor-picker"><button aria-label="Select ego vehicle" aria-pressed={selectedActor === ego.id} onClick={() => onActor(ego.id)}>Inspect ego</button><select aria-label="Inspect traffic actor" value={actors.some(a => a.id === selectedActor) ? selectedActor! : ''} onChange={e => { if (e.target.value) onActor(e.target.value); }}><option value="">Traffic ({actors.length})</option>{actors.map(a => <option key={a.id} value={a.id}>{a.id}</option>)}</select></div>
     </div>
+    {scenario.environment && <div className="scene-fleet-note"><strong>{actors.length + 1} vehicles · {actors.filter(a => a.speed > 0).length} moving traffic · {actors.filter(a => a.speed === 0).length} parked</strong><span>Synthetic, prescribed motion · street context illustrative</span></div>}
     <div className="scene-canvas">
     <Canvas shadows="percentage" frameloop="demand" dpr={[1, 1.5]} camera={{ position: [-20, 40, 30], fov: 42, near: .1, far: Math.max(5000, span * 3) }} gl={{ antialias: true }} onCreated={() => setReady(true)} fallback={<div className="scene-placeholder" role="status">WebGL is unavailable.<button className="button button-secondary" onClick={onFallback}>Use 2D replay</button></div>}>
       <ContextGuard onFallback={onFallback} />
       <color attach="background" args={[paint.ground]} />
       <hemisphereLight args={[paint.paper, paint.ground, 1.1]} />
-      <directionalLight position={[30, 65, 25]} intensity={2.8} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-65} shadow-camera-right={65} shadow-camera-top={65} shadow-camera-bottom={-65} shadow-camera-far={180} shadow-normalBias={.04} />
+      <directionalLight position={[30, 100, 25]} intensity={2.8} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-160} shadow-camera-right={160} shadow-camera-top={160} shadow-camera-bottom={-160} shadow-camera-far={300} shadow-normalBias={.04} />
       <directionalLight position={[-35, 20, -25]} color={paint.selected} intensity={.9} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={center} receiveShadow><planeGeometry args={[span + 300, span + 300]} /><meshStandardMaterial color={paint.ground} roughness={.9} /></mesh>
       <gridHelper args={[Math.ceil((span + 150) / 10) * 10, Math.ceil((span + 150) / 10), paint.gridMajor, paint.grid]} position={[center[0], 0, center[2]]} />
       {scenario.road_polygons.filter(p => p.length >= 3).map((p, i) => <Road key={i} polygon={p} origin={origin} />)}
-      {scenario.lanes.map(lane => <Path key={lane.id} points={lane.points} origin={origin} color={paint.lane} dashed opacity={.85} />)}
+      {scenario.environment && <BoulevardContext context={scenario.environment} origin={origin} />}
+      {scenario.lanes.map(lane => <Path key={lane.id} points={lane.points} origin={origin} color={paint.lane} dashed opacity={.45} />)}
       {showRoute && <Path points={scenario.route} origin={origin} color={paint.paper} dashed opacity={.5} height={.11} />}
-      {showCandidates && candidates.filter(c => c.id !== chosen?.id && c.id !== inspected?.id && c.id !== alternative?.id).map(c => <Path key={c.id} points={c.points} origin={origin} color={c.feasible ? paint.feasible : paint.rejected} width={1} dashed opacity={.16} height={.12} />)}
+      {showCandidates && candidates.filter(c => c.id !== chosen?.id && c.id !== inspected?.id && c.id !== alternative?.id).map(c => <Path key={c.id} points={c.points} origin={origin} color={c.feasible ? paint.feasible : paint.rejected} width={1} dashed opacity={.10} height={.12} />)}
       {showCandidates && alternative && !sameGeometry && alternative.id !== inspected?.id && <Path points={alternative.points} origin={origin} color={paint.alternative} width={2.5} dashed opacity={.9} height={.14} />}
-      {chosen && <Path points={chosen.points} origin={origin} color={paint.selected} width={4} height={.15} />}
-      {inspected && inspected.id !== chosen?.id && <Path points={inspected.points} origin={origin} color={paint.inspected} width={4} height={.18} />}
-      {showForecasts && frame?.actor_forecasts?.map(path => <Path key={path.actor_id} points={path.points} origin={origin} color={paint.alternative} width={2.5} dashed height={.2} />)}
+      {chosen && <Path points={chosen.points} origin={origin} color={paint.selected} width={5} height={.15} />}
+      {inspected && inspected.id !== chosen?.id && <Path points={inspected.points} origin={origin} color={paint.inspected} width={4} dashed height={.18} />}
+      {showForecasts && frame?.actor_forecasts?.map(path => <Path key={path.actor_id} points={path.points} origin={origin} color={paint.alternative} width={scenario.environment && selectedActor !== path.actor_id ? 1.2 : 2.5} opacity={scenario.environment && selectedActor !== path.actor_id ? .28 : 1} dashed height={.2} />)}
       {actors.map(vehicle => <VehicleMesh key={vehicle.id} vehicle={vehicle} origin={origin} selected={selectedActor === vehicle.id} onActor={onActor} onReady={onReady} onFailure={onFailure} />)}
       <VehicleMesh vehicle={ego} ego origin={origin} selected={selectedActor === ego.id} onActor={onActor} onReady={onReady} onFailure={onFailure} />
-      {frame?.metrics.collision && <mesh position={world([ego.x, ego.y], origin, .24)} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[3.8, 4, 48]} /><meshBasicMaterial color="#d65462" side={DoubleSide} /></mesh>}
+      {frame?.metrics.collision && <mesh position={world([ego.x, ego.y], origin, .24)} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[3.8, 4, 48]} /><meshBasicMaterial color={paint.rejected} side={DoubleSide} /></mesh>}
       <CameraRig ego={ego} actors={actors} frameTime={frame?.time} playbackActive={playbackActive} origin={origin} scenario={scenario} mode={mode} follow={follow} zoom={zoom} reset={reset} reducedMotion={reducedMotion} onOrbit={() => setFollow(false)} />
     </Canvas>
     {busy && <div className="scene-loading"><span className="spinner" />{busyLabel ?? 'Computing driving decisions…'}</div>}

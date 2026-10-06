@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Crosshair, Minus, Plus, Maximize2 } from 'lucide-react';
 import type { Candidate, Frame, Point, Scenario, Vehicle } from './types';
 import { useArrival } from './motion';
-import { scenePalette as paint } from './scenePalette';
+import { scenePalette as paint, vehiclePaint } from './scenePalette';
 
 const points = (p: Point[]) => p.map(([x, y]) => x + ',' + y).join(' ');
 
@@ -24,7 +24,7 @@ export function ScenarioThumbnail({ route }: { route?: Point[] }) {
 }
 
 function Car({ vehicle, ego, selected, onSelect, size }: { vehicle: Vehicle; ego?: boolean; selected: boolean; onSelect: (id: string) => void; size: number }) {
-  const color = ego ? paint.selected : vehicle.kind === 'pedestrian' ? paint.alternative : paint.traffic;
+  const color = vehicle.kind === 'pedestrian' ? paint.alternative : vehiclePaint(vehicle.id, !!ego);
   return <g transform={'translate(' + vehicle.x + ' ' + vehicle.y + ') rotate(' + vehicle.yaw * 180 / Math.PI + ')'}
     className="car" tabIndex={0} role="button" aria-label={ego ? 'Select ego vehicle' : 'Select vehicle ' + vehicle.id}
     onClick={() => onSelect(vehicle.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(vehicle.id); } }}>
@@ -76,7 +76,7 @@ export default function Scene(props: SceneProps) {
 
 function Scene2D({ scenario, frame, showCandidates, showRoute, showForecasts, inspectedCandidate, selectedActor, onActor, busy, busyLabel }: SceneProps) {
   const [zoom, setZoom] = useState(1);
-  const [follow, setFollow] = useState(true);
+  const [follow, setFollow] = useState(!scenario.tags.includes('urban-fleet'));
   const container = useRef<HTMLDivElement>(null);
   const [aspect, setAspect] = useState(.6);
   useEffect(() => {
@@ -99,10 +99,10 @@ function Scene2D({ scenario, frame, showCandidates, showRoute, showForecasts, in
   const inspected = candidates.find(c => c.id === inspectedCandidate);
   const renderPath = (candidate: Candidate, selected = false, inspecting = false) => <polyline key={candidate.id + (selected ? 's' : 'a')}
     points={points(candidate.points)} fill="none" stroke={inspecting ? paint.inspected : selected ? paint.selected : candidate.feasible ? paint.feasible : paint.rejected}
-    strokeWidth={selected || inspecting ? '.45' : '.15'} opacity={selected || inspecting ? 1 : .48}
-    strokeDasharray={selected || inspecting ? undefined : '.4 .4'} strokeLinecap="round" strokeLinejoin="round" />;
+    strokeWidth={selected || inspecting ? '.45' : '.15'} opacity={selected || inspecting ? 1 : .2}
+    strokeDasharray={inspecting ? '.65 .35' : selected ? undefined : '.4 .4'} strokeLinecap="round" strokeLinejoin="round" />;
   const view = [centerX - width / 2, -centerY - height / 2, width, height].join(' ');
-  return <div ref={container} className={'scene ' + (busy ? 'scene-busy' : '')} data-testid="scene">
+  return <div ref={container} className={'scene ' + (busy ? 'scene-busy' : '')} data-testid="scene" data-actor-count={actors.filter(a => a.valid !== false).length}>
     <div className="scene-hud"><span className="map-dot" />{scenario.name}<span className="hud-separator" /><span>{scenario.source.toLowerCase().includes('waymo') ? 'Waymo scene' : 'Synthetic scene'}</span></div>
     <svg className="road-canvas" viewBox={view} aria-label={'Road replay of ' + scenario.name}>
       <defs><pattern id="grid" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="0" cy="0" r=".055" fill={paint.gridMajor} /></pattern></defs>
@@ -114,11 +114,11 @@ function Scene2D({ scenario, frame, showCandidates, showRoute, showForecasts, in
         {showCandidates && candidates.filter(c => c.id !== chosen?.id && c.id !== inspected?.id).map(c => renderPath(c))}
         {chosen && renderPath(chosen, true)}
         {inspected && inspected.id !== chosen?.id && renderPath(inspected, false, true)}
-        {showForecasts && frame?.actor_forecasts?.map(path => <polyline key={path.actor_id} data-forecast-actor={path.actor_id} points={points(path.points)} fill="none" stroke={paint.alternative} strokeWidth=".3" strokeDasharray=".65 .5" strokeLinecap="round" opacity=".85"><title>Predicted movement of {path.actor_id} over {path.times.at(-1)} seconds</title></polyline>)}
+        {showForecasts && frame?.actor_forecasts?.map(path => <polyline key={path.actor_id} data-forecast-actor={path.actor_id} points={points(path.points)} fill="none" stroke={paint.alternative} strokeWidth=".3" strokeDasharray=".65 .5" strokeLinecap="round" opacity={scenario.environment && selectedActor !== path.actor_id ? .28 : .85}><title>Predicted movement of {path.actor_id} over {path.times.at(-1)} seconds</title></polyline>)}
         {actors.filter(a => a.valid !== false).map(a => <Car key={a.id} vehicle={a} selected={selectedActor === a.id} onSelect={onActor} size={width} />)}
         <Car vehicle={ego} ego selected={selectedActor === ego.id} onSelect={onActor} size={width} />
-        {frame?.metrics.collision && <circle cx={ego.x} cy={ego.y} r="4" fill="none" stroke="#d65462" strokeWidth=".25" strokeDasharray=".4 .4" />}
-        {scenario.route.length > 0 && <circle cx={scenario.route[scenario.route.length - 1][0]} cy={scenario.route[scenario.route.length - 1][1]} r=".55" fill="#42a998" opacity=".65" />}
+        {frame?.metrics.collision && <circle cx={ego.x} cy={ego.y} r="4" fill="none" stroke={paint.rejected} strokeWidth=".25" strokeDasharray=".4 .4" />}
+        {scenario.route.length > 0 && <circle cx={scenario.route[scenario.route.length - 1][0]} cy={scenario.route[scenario.route.length - 1][1]} r=".55" fill={paint.feasible} opacity=".65" />}
       </g>
     </svg>
     <div className="map-legend"><span><i className="legend-ego" />Ego</span><span><i className="legend-traffic" />Traffic</span>{showCandidates && <span><i className="legend-rejected" />Rejected paths</span>}{showForecasts && !!frame?.actor_forecasts?.length && <span><i className="legend-forecast" />Forecast</span>}</div>
